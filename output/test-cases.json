@@ -1,0 +1,197 @@
+{
+  "testCases": [
+    {
+      "id": "TC-001",
+      "title": "Successful user registration with valid data",
+      "preconditions": "User is not registered; email server is accessible",
+      "steps": [
+        "Navigate to registration page",
+        "Enter valid username (4-20 chars, alphanumeric/underscore)",
+        "Enter unique valid email",
+        "Enter strong password (8+ chars, upper/lower/digit)",
+        "Re-enter matching password",
+        "Submit registration form"
+      ],
+      "expectedResult": "System displays success message; verification email is sent; user account is created in unverified state",
+      "priority": "P0"
+    },
+    {
+      "id": "TC-002",
+      "title": "Registration fails with duplicate email",
+      "preconditions": "Test email already registered in system",
+      "steps": [
+        "Navigate to registration page",
+        "Enter valid username",
+        "Enter email of existing user",
+        "Enter valid password and confirmation",
+        "Submit form"
+      ],
+      "expectedResult": "System displays error '该邮箱已被使用'; account is not created",
+      "priority": "P0"
+    },
+    {
+      "id": "TC-003",
+      "title": "Registration validation for invalid username formats",
+      "preconditions": "User is not registered",
+      "steps": [
+        "Navigate to registration page",
+        "Enter username with 3 characters",
+        "Enter username with 21 characters",
+        "Enter username with special characters (@, #, $)",
+        "Observe validation messages"
+      ],
+      "expectedResult": "Real-time validation shows appropriate error messages for each invalid format",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-004",
+      "title": "Email verification link activation",
+      "preconditions": "User registered but not verified; has verification email",
+      "steps": [
+        "Open verification email",
+        "Click activation link",
+        "Return to application"
+      ],
+      "expectedResult": "Account status changes to verified; user can log in; appropriate confirmation is displayed",
+      "priority": "P0"
+    },
+    {
+      "id": "TC-005",
+      "title": "Successful password-based login with 'Remember me'",
+      "preconditions": "User has verified account; browser cookies cleared",
+      "steps": [
+        "Navigate to login page",
+        "Enter valid email/username",
+        "Enter correct password",
+        "Check 'Remember me' checkbox",
+        "Submit login form"
+      ],
+      "expectedResult": "User is logged in; session persists for 7 days; appropriate welcome message displayed",
+      "priority": "P0"
+    },
+    {
+      "id": "TC-006",
+      "title": "Account lockout after 5 failed login attempts",
+      "preconditions": "User has verified account; no recent failed attempts",
+      "steps": [
+        "Navigate to login page",
+        "Enter valid email/username",
+        "Enter incorrect password 5 times",
+        "Attempt login with correct password on 6th attempt"
+      ],
+      "expectedResult": "After 5th failed attempt, account is locked; 6th attempt shows lockout message; account unlocks after 15 minutes",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-007",
+      "title": "First-time OAuth login with GitHub",
+      "preconditions": "User has GitHub account; not previously linked",
+      "steps": [
+        "Navigate to login page",
+        "Click 'Login with GitHub'",
+        "Authorize application on GitHub",
+        "Return to application"
+      ],
+      "expectedResult": "New account is automatically created; user is logged in; account is linked to GitHub",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-008",
+      "title": "Password reset request and completion",
+      "preconditions": "User has verified account; email server accessible",
+      "steps": [
+        "Click 'Forgot password' on login page",
+        "Enter registered email address",
+        "Check email for reset link",
+        "Click reset link (within 30 minutes)",
+        "Enter new valid password and confirmation",
+        "Submit new password"
+      ],
+      "expectedResult": "Reset email sent; link works once; password is updated; user is logged out of all devices",
+      "priority": "P0"
+    },
+    {
+      "id": "TC-009",
+      "title": "Password reset link expiration after 30 minutes",
+      "preconditions": "User requested password reset; has reset email",
+      "steps": [
+        "Wait 31 minutes after reset email sent",
+        "Click reset link from email",
+        "Attempt to set new password"
+      ],
+      "expectedResult": "System displays link expired message; user must request new reset link",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-010",
+      "title": "Login response time performance test",
+      "preconditions": "User has verified account; system under normal load",
+      "steps": [
+        "Navigate to login page",
+        "Enter valid credentials",
+        "Submit login form",
+        "Measure response time"
+      ],
+      "expectedResult": "Login completes within 500ms; user is redirected to dashboard",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-011",
+      "title": "Cross-browser compatibility for registration",
+      "preconditions": "Test on Chrome, Firefox, Safari, Edge",
+      "steps": [
+        "Open registration page in each browser",
+        "Complete registration form with valid data",
+        "Submit form",
+        "Verify functionality and layout"
+      ],
+      "expectedResult": "Registration works correctly in all supported browsers; layout is consistent",
+      "priority": "P2"
+    },
+    {
+      "id": "TC-012",
+      "title": "Mobile responsive design for login",
+      "preconditions": "Access application on mobile device/emulator",
+      "steps": [
+        "Open login page on mobile device",
+        "Enter credentials",
+        "Toggle 'Remember me'",
+        "Submit login",
+        "Verify layout and functionality"
+      ],
+      "expectedResult": "Login interface is responsive; all elements accessible; functionality works correctly",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-013",
+      "title": "Concurrent login sessions after password change",
+      "preconditions": "User logged in on Device A and Device B",
+      "steps": [
+        "On Device A, change password via settings",
+        "On Device B, attempt to access protected resource",
+        "On Device B, attempt to log in with old password",
+        "On Device B, attempt to log in with new password"
+      ],
+      "expectedResult": "Device B session is terminated; old password fails; new password succeeds",
+      "priority": "P1"
+    },
+    {
+      "id": "TC-014",
+      "title": "OAuth login with existing email conflict",
+      "preconditions": "User has regular account with email; attempts OAuth login with same email",
+      "steps": [
+        "Ensure regular account exists with test@example.com",
+        "Click 'Login with Google' using Google account with same email",
+        "Authorize application"
+      ],
+      "expectedResult": "System handles conflict appropriately (either merges accounts or prompts user)",
+      "priority": "P2"
+    }
+  ],
+  "coverageAnalysis": "Test coverage includes: 1) All registration validation scenarios (success, duplicate email, format errors), 2) Email verification flow, 3) Password-based login (success, failure, lockout, remember me), 4) OAuth login (first-time, returning), 5) Password reset (request, link usage, expiration), 6) Security requirements (password encryption, session management), 7) Performance (response time), 8) Compatibility (cross-browser, mobile). Missing: Load/stress testing, detailed security penetration testing, accessibility compliance testing, and localization/internationalization if required.",
+  "thoughtProcess": [
+    "1. Identify user roles: Unregistered user, Registered user (unverified), Registered user (verified), User with OAuth account, User locked out due to failed attempts, User requesting password reset.",
+    "2. Break down functions: User registration (form validation, email verification), User login (password-based, OAuth, remember me, lockout), Password reset (request, link usage, password change).",
+    "3. Analyze exceptions: Duplicate email/username, invalid input formats, expired verification/reset links, OAuth failures, account lockout, concurrent sessions, browser compatibility issues."
+  ]
+}
