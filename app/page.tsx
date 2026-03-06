@@ -136,8 +136,8 @@ export default function Dashboard() {
       }
     } catch (err: any) {
       console.error("Analysis failed:", err);
-      if (err.message === "Failed to fetch") {
-        setError("连接超时或网络错误。这通常是因为 AI 生成内容耗时较长（超过 2 分钟），请尝试缩短需求文档内容，或者检查网络连接。");
+      if (err.message === "Failed to fetch" || err.message.includes("超时")) {
+        setError(err.message.includes("超时") ? err.message : "连接超时或网络错误。这通常是因为 AI 生成内容耗时较长（超过 1 分钟），请尝试缩短需求文档内容，或者检查网络连接。");
       } else {
         setError(err.message || "An unexpected error occurred");
       }

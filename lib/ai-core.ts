@@ -28,7 +28,9 @@ async function callDeepSeek(messages: any[]) {
   // console.log('Messages:', JSON.stringify(messages, null, 2));
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout
+  // Vercel Hobby plan has a hard limit of 60s (10s default). 
+  // We set timeout to 55s to catch it gracefully before Vercel kills the function.
+  const timeoutId = setTimeout(() => controller.abort(), 55000); 
 
   try {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -40,6 +42,8 @@ async function callDeepSeek(messages: any[]) {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: messages,
+        temperature: 0.7, // Add temperature for faster/deterministic output
+        max_tokens: 2000, // Limit output tokens to avoid timeouts
       }),
       signal: controller.signal
     });
@@ -59,8 +63,8 @@ async function callDeepSeek(messages: any[]) {
     clearTimeout(timeoutId); // Ensure timeout is cleared on error
     console.error('Fetch error calling DeepSeek:', error);
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error('Request timed out after 120s');
-      throw new Error('DeepSeek API request timed out after 120s');
+      console.error('Request timed out after 55s');
+      throw new Error('请求超时（超过55秒）。DeepSeek 生成内容耗时较长，请尝试缩短需求文档内容，或稍后重试。');
     }
     throw error;
   }
@@ -71,8 +75,8 @@ export async function generateTestCasesCore(requirement: string) {
     console.log('generateTestCasesCore started');
     
     const systemPrompt = `你是一位资深 QA 工程师。
-请根据用户输入的需求，设计覆盖全面的测试用例，包括正常路径和异常路径。
-请展示你的“思维链”过程：
+请根据用户输入的需求，设计覆盖全面的测试用例（重点关注核心流程和关键异常，控制数量在 5-10 个以内以保证响应速度）。
+请简要展示你的“思维链”过程（控制在 3-5 步以内）：
 1. 识别用户角色
 2. 拆解功能点
 3. 分析异常场景
@@ -137,6 +141,8 @@ export async function reviewRequirementsCore(
     const systemPrompt = `你是一个资深的产品经理和架构师。
 这是一个“反向验证”过程。
 请根据原始需求文本和基于该需求生成的测试用例，反推需求文档中是否存在逻辑漏洞、模糊不清或未定义的边缘情况。
+请重点关注最严重的 3-5 个问题，忽略细枝末节，以保证响应速度。
+
 请务必只返回合法的 JSON 格式数据，不要包含 Markdown 代码块标记（如 \`\`\`json）。
 JSON 结构应符合以下 Schema：
 ${JSON.stringify({
