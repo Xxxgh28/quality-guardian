@@ -28,7 +28,7 @@ async function callDeepSeek(messages: any[]) {
   // console.log('Messages:', JSON.stringify(messages, null, 2));
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout
 
   try {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -58,6 +58,10 @@ async function callDeepSeek(messages: any[]) {
   } catch (error) {
     clearTimeout(timeoutId); // Ensure timeout is cleared on error
     console.error('Fetch error calling DeepSeek:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Request timed out after 120s');
+      throw new Error('DeepSeek API request timed out after 120s');
+    }
     throw error;
   }
 }
@@ -117,9 +121,11 @@ ${JSON.stringify({
     const validated = TestPlanSchema.parse(object);
 
     return { success: true, data: validated };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating test cases:", error);
-    return { success: false, error: "生成测试用例失败，请稍后重试。" };
+    // 返回更详细的错误信息以便排查
+    const errorMessage = error instanceof Error ? error.message : "未知错误";
+    return { success: false, error: `生成测试用例失败: ${errorMessage}` };
   }
 }
 

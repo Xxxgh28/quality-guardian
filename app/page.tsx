@@ -135,7 +135,12 @@ export default function Dashboard() {
         setReviewResult(reviewRes.data);
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+      console.error("Analysis failed:", err);
+      if (err.message === "Failed to fetch") {
+        setError("连接超时或网络错误。这通常是因为 AI 生成内容耗时较长（超过 2 分钟），请尝试缩短需求文档内容，或者检查网络连接。");
+      } else {
+        setError(err.message || "An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
       setReviewLoading(false);
